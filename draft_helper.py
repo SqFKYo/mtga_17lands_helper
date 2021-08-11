@@ -5,7 +5,19 @@ import json
 from operator import attrgetter
 from time import sleep
 
+from colorama import Back, Fore, Style
 import requests
+
+COLOR_MAP = {
+    'W': Fore.LIGHTWHITE_EX,
+    'U': Fore.LIGHTCYAN_EX,
+    'B': f"{Fore.BLACK}{Back.WHITE}",
+    'R': Fore.LIGHTRED_EX,
+    'G': Fore.GREEN,
+    'L': Fore.MAGENTA,
+    'C': Fore.MAGENTA,
+    'M': Fore.YELLOW,
+}
 
 # AKR ChordOCalls
 # DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/638b3c8483804afa878db3b7edc638f8'
@@ -54,7 +66,7 @@ class DraftHelper:
         pick_order = sorted(cards, key=attrgetter('tier'), reverse=True)
         print("*"*36)
         for card in pick_order:
-            print(f"{card.name}, {card.tier}, {card.rarity}")
+            print(f"{COLOR_MAP[card.color]}{card.name}, {card.tier}, {card.rarity}{Style.RESET_ALL}")
 
     def parse_tiers(self, to_parse):
         """Parses raw json data into dict where card_id pulls the other data"""

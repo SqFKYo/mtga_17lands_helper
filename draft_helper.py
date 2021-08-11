@@ -38,9 +38,12 @@ class DraftHelper:
 
     def get_draft_choices(self, line):
         """Gets the most recent list of card_ids available in a draft"""
-        if "Draft.Notify" not in line:
+        if b"Draft.Notify" in line:
+            card_ids = json.loads(line.split(b"Draft.Notify")[1])["PackCards"]
+        elif b"Draft.DraftStatus" in line:
+            card_ids = json.loads(line.split(b'Draft.DraftStatus')[1])["payload"]["DraftPack"]
+        else:
             return
-        card_ids = json.loads(line.split("Draft.Notify")[1])["PackCards"]
         cards = [self.tiers[int(card_id)] for card_id in card_ids.split(',')]
         pick_order = sorted(cards, key=attrgetter('tier'), reverse=True)
         print("*"*36)

@@ -18,7 +18,7 @@ if COLORS:
         'G': Fore.GREEN,
         'L': Fore.MAGENTA,
         'C': Fore.MAGENTA,
-        'M': Fore.YELLOW,
+        'M': Fore.LIGHTYELLOW_EX,
     }
     END_FORMAT = Style.RESET_ALL
 else:
@@ -75,13 +75,25 @@ class DraftHelper:
             jsonified = json.loads(tail)
             card_ids = jsonified["payload"]["DraftPack"]
             cards = [self.tiers[int(card_id)] for card_id in card_ids]
+        elif b"Draft.MakePick" in line and b"payload" in line:
+            head, tail = line.split(b'Draft.MakePick')
+            jsonified = json.loads(tail)
+            card_ids = jsonified["payload"]["DraftPack"]
+            try:
+                cards = [self.tiers[int(card_id)] for card_id in card_ids]
+            except TypeError:
+                # QuickDraft finished
+                return
         else:
             return
 
         pick_order = sorted(cards, key=attrgetter('tier'), reverse=True)
         print("*"*36)
         for card in pick_order:
-            print(f"{COLOR_MAP[card.color]}{card.name}, {card.tier}, {card.rarity}{END_FORMAT}")
+            try:
+                print(f"{COLOR_MAP[card.color]}{card.name}, {card.tier}, {card.rarity}{END_FORMAT}")
+            except KeyError:
+                print(f"{card.name}, {card.tier}, {card.rarity}")
 
     def parse_tiers(self, to_parse):
         """Parses raw json data into dict where card_id pulls the other data"""

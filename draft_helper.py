@@ -79,7 +79,4 @@ if __name__ == '__main__':
             line = f.readline()
             if line:
                 helper.get_draft_choices(line)
-            sleep(0.5)
-
-    # line = b'[UnityCrossThreadLogger]<== Draft.DraftStatus {"id":3490,"payload":{"DraftId":"LFZDDWQMAZC6BPN34NILOYZWNA:QuickDraft_KHM_20210810:Draft","DraftStatus":"Draft.PickNext","PackNumber":0,"PickNumber":0,"DraftPack":["75068","75071","75117","75202","75142","75199","75209","75159","75192","75046","75187","75114","75150","75047","75335"],"PickedCards":[]}}'
-    # helper.get_draft_choices(line)
+            sleep(0.1)

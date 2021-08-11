@@ -8,16 +8,31 @@ from time import sleep
 from colorama import Back, Fore, Style
 import requests
 
-COLOR_MAP = {
-    'W': Fore.LIGHTWHITE_EX,
-    'U': Fore.LIGHTCYAN_EX,
-    'B': f"{Fore.BLACK}{Back.WHITE}",
-    'R': Fore.LIGHTRED_EX,
-    'G': Fore.GREEN,
-    'L': Fore.MAGENTA,
-    'C': Fore.MAGENTA,
-    'M': Fore.YELLOW,
-}
+COLORS = True
+if COLORS:
+    COLOR_MAP = {
+        'W': Fore.LIGHTWHITE_EX,
+        'U': Fore.LIGHTCYAN_EX,
+        'B': f"{Fore.BLACK}{Back.WHITE}",
+        'R': Fore.LIGHTRED_EX,
+        'G': Fore.GREEN,
+        'L': Fore.MAGENTA,
+        'C': Fore.MAGENTA,
+        'M': Fore.YELLOW,
+    }
+    END_FORMAT = Style.RESET_ALL
+else:
+    COLOR_MAP = {
+        'W': '',
+        'U': '',
+        'B': '',
+        'R': '',
+        'G': '',
+        'L': '',
+        'C': '',
+        'M': '',
+    }
+    END_FORMAT = ''
 
 # AKR ChordOCalls
 # DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/638b3c8483804afa878db3b7edc638f8'
@@ -66,7 +81,7 @@ class DraftHelper:
         pick_order = sorted(cards, key=attrgetter('tier'), reverse=True)
         print("*"*36)
         for card in pick_order:
-            print(f"{COLOR_MAP[card.color]}{card.name}, {card.tier}, {card.rarity}{Style.RESET_ALL}")
+            print(f"{COLOR_MAP[card.color]}{card.name}, {card.tier}, {card.rarity}{END_FORMAT}")
 
     def parse_tiers(self, to_parse):
         """Parses raw json data into dict where card_id pulls the other data"""

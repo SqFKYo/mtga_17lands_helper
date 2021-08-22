@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict, namedtuple
+from collections import Counter, defaultdict, namedtuple
 import json
 from operator import attrgetter
 from time import sleep
@@ -34,10 +34,16 @@ else:
     }
     END_FORMAT = ''
 
+# AFR ChordOCalls
+DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/1d901171375f4cff9834c751667c4254'
 # AKR ChordOCalls
 # DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/638b3c8483804afa878db3b7edc638f8'
+# KLR ChordOCalls
+# DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/c63f7ddf532a44fe9ef142acc1df650b'
 # KHM ChordOCalls
-DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/69638dc98022443a9716300958e5fe9f'
+# DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/69638dc98022443a9716300958e5fe9f'
+# IKO ChordOCalls
+# DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/db593297907e41af93eedd994e26da28'
 PLAYER_LOG = r'C:\Users\sqfky\AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log'
 VALUE_MAP = {
     'A+': 10,
@@ -71,12 +77,12 @@ class DraftHelper:
             card_ids = json.loads(line.split(b"Draft.Notify")[1])["PackCards"]
             cards = [self.tiers[int(card_id)] for card_id in card_ids.split(',')]
         elif b"Draft.DraftStatus" in line and b"payload" in line:
-            head, tail = line.split(b'Draft.DraftStatus')
+            _, tail = line.split(b'Draft.DraftStatus')
             jsonified = json.loads(tail)
             card_ids = jsonified["payload"]["DraftPack"]
             cards = [self.tiers[int(card_id)] for card_id in card_ids]
         elif b"Draft.MakePick" in line and b"payload" in line:
-            head, tail = line.split(b'Draft.MakePick')
+            _, tail = line.split(b'Draft.MakePick')
             jsonified = json.loads(tail)
             card_ids = jsonified["payload"]["DraftPack"]
             try:
@@ -84,6 +90,9 @@ class DraftHelper:
             except TypeError:
                 # QuickDraft finished
                 return
+        elif b"Event.GetPlayerCourseV2" in line and b"payload" in line:
+            self.print_pool(line)
+            return
         else:
             return
 
@@ -103,6 +112,16 @@ class DraftHelper:
                                                     card["color"],
                                                     VALUE_MAP[card["tier"]],
                                                     card["cmc"])
+
+    def print_pool(self, line):
+        _, tail = line.split(b"Event.GetPlayerCourseV2")
+        jsonfied = json.loads(tail)
+        card_ids = jsonfied["payload"]["CardPool"]
+        card_pool = Counter(card_ids)
+        card_pool = {helper.tiers[key]: value for key, value in card_pool.items()}
+        build_order = sorted(card_pool.items(), key=lambda x: x[0][3], reverse=True)
+        for card, amount in build_order:
+            print(f"{COLOR_MAP[card.color]}{amount:>2} {card.name}, {card.tier}{END_FORMAT}")
 
 
 if __name__ == '__main__':

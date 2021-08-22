@@ -118,7 +118,7 @@ class DraftHelper:
         jsonfied = json.loads(tail)
         card_ids = jsonfied["payload"]["CardPool"]
         card_pool = Counter(card_ids)
-        card_pool = {helper.tiers[key]: value for key, value in card_pool.items()}
+        card_pool = {self.tiers[key]: value for key, value in card_pool.items()}
         build_order = sorted(card_pool.items(), key=lambda x: x[0][3], reverse=True)
         for card, amount in build_order:
             print(f"{COLOR_MAP[card.color]}{amount:>2} {card.name}, {card.tier}{END_FORMAT}")

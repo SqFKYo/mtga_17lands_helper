@@ -90,7 +90,7 @@ class DraftHelper:
             except TypeError:
                 # QuickDraft finished
                 return
-        elif b"Event.GetPlayerCourseV2" in line and b"payload" in line:
+        elif b"CourseId" in line and b"CardPool" in line:
             self.print_pool(line)
             return
         else:
@@ -114,9 +114,13 @@ class DraftHelper:
                                                     card["cmc"])
 
     def print_pool(self, line):
-        _, tail = line.split(b"Event.GetPlayerCourseV2")
-        jsonfied = json.loads(tail)
-        card_ids = jsonfied["payload"]["CardPool"]
+        jsonfied = json.loads(line)
+        try:
+            jsonfied = jsonfied['Courses']
+        except KeyError:
+            # Already in Courses structure
+            pass
+        card_ids = jsonfied['CardPool']
         card_pool = Counter(card_ids)
         card_pool = {self.tiers[key]: value for key, value in card_pool.items()}
         build_order = sorted(card_pool.items(), key=lambda x: x[0][3], reverse=True)

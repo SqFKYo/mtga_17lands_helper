@@ -134,15 +134,18 @@ class DraftHelper:
             # Already in Courses structure
             pass
         try:
-            card_ids = jsonfied['CardPool']
+            card_ids = jsonfied[2]['CardPool']
         except TypeError:
             # Non-draft event?
+            print('Actually hit the Non-draft event? clause. Weird.')
             return
         card_pool = Counter(card_ids)
         card_pool = {self.tiers[key]: value for key, value in card_pool.items()}
         build_order = sorted(card_pool.items(), key=lambda x: x[0][3], reverse=True)
+        print('\nStarting draft tiers:')
         for card, amount in build_order:
             print(f"{COLOR_MAP[card.color]}{amount:>2} {card.name}, {card.tier}{END_FORMAT}")
+        print('Ending draft tiers\n')
 
 
 if __name__ == '__main__':

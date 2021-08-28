@@ -35,7 +35,7 @@ else:
     END_FORMAT = ''
 
 # AFR ChordOCalls
-DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/1d901171375f4cff9834c751667c4254'
+# DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/1d901171375f4cff9834c751667c4254'
 # AKR ChordOCalls
 # DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/638b3c8483804afa878db3b7edc638f8'
 # KLR ChordOCalls
@@ -43,7 +43,7 @@ DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/1d901171375f4cff9834c751
 # KHM ChordOCalls
 # DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/69638dc98022443a9716300958e5fe9f'
 # IKO ChordOCalls
-# DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/db593297907e41af93eedd994e26da28'
+DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/db593297907e41af93eedd994e26da28'
 PLAYER_LOG = r'C:\Users\sqfky\AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log'
 SHOW_PICKS = True
 VALUE_MAP = {
@@ -117,7 +117,11 @@ class DraftHelper:
         else:
             return
         card = self.tiers[card_id]
-        print(f"You picked: {COLOR_MAP[card.color]}{card.name}, {card.tier}, {card.rarity}{END_FORMAT}")
+        try:
+            print(f"You picked: {COLOR_MAP[card.color]}{card.name}, {card.tier}, {card.rarity}{END_FORMAT}")
+        except KeyError:
+            # Most likely basic land or other non-tiered card
+            print(f"You picked: {card.name}, {card.tier}, {card.rarity}")
 
     def parse_tiers(self, to_parse):
         """Parses raw json data into dict where card_id pulls the other data"""
@@ -158,31 +162,31 @@ if __name__ == '__main__':
     response = requests.get(DATA_SOURCE)
     helper.parse_tiers(response.json())
 
-    with open(PLAYER_LOG, 'rb') as f:
-        f.seek(0, 2)
-        print("Helper online, waiting for draft data.")
-        prev_line = ""
-        while True:
-            line = f.readline()
-            if line:
-                if line == prev_line:
-                    continue
-                else:
-                    prev_line = line
-                helper.get_draft_choices(line)
-                if SHOW_PICKS:
-                    helper.get_pick(line)
-            sleep(0.1)
+    # with open(PLAYER_LOG, 'rb') as f:
+    #     f.seek(0, 2)
+    #     print("Helper online, waiting for draft data.")
+    #     prev_line = ""
+    #     while True:
+    #         line = f.readline()
+    #         if line:
+    #             if line == prev_line:
+    #                 continue
+    #             else:
+    #                 prev_line = line
+    #             helper.get_draft_choices(line)
+    #             if SHOW_PICKS:
+    #                 helper.get_pick(line)
+    #         sleep(0.1)
 
-   #  TEST_LOG = r'c:\users\sqfky\desktop\premium_draft_iko.log'
+    TEST_LOG = r'c:\users\sqfky\desktop\premium_draft_iko.log'
    #  TEST_LOG = r'c:\users\sqfky\desktop\quick_draft_afr.log'
-   #  with open(TEST_LOG, 'rb') as f:
-   #      prev_line = ""
-   #      for line in f:
-   #          if line == prev_line:
-   #              continue
-   #          else:
-   #              prev_line = line
-   #          helper.get_draft_choices(line)
-   #          if SHOW_PICKS:
-   #              helper.get_pick(line)
+    with open(TEST_LOG, 'rb') as f:
+        prev_line = ""
+        for line in f:
+            if line == prev_line:
+                continue
+            else:
+                prev_line = line
+            helper.get_draft_choices(line)
+            if SHOW_PICKS:
+                helper.get_pick(line)

@@ -140,7 +140,12 @@ class DraftHelper:
             # Already in Courses structure
             pass
         try:
+            # QuickDraft
             card_ids = jsonfied[2]['CardPool']
+        except KeyError:
+            # PremiumDraft
+            card_ids = jsonfied['CardPool']
+
         except TypeError:
             # Non-draft event?
             print('Actually hit the Non-draft event? clause. Weird.')
@@ -152,7 +157,10 @@ class DraftHelper:
         build_order = sorted(card_pool.items(), key=lambda x: x[0][3], reverse=True)
         print('\nStarting draft tiers:')
         for card, amount in build_order:
-            print(f"{COLOR_MAP[card.color]}{amount:>2} {card.name}, {card.tier}{END_FORMAT}")
+            if card.color:
+                print(f"{COLOR_MAP[card.color]}{amount:>2} {card.name}, {card.tier}{END_FORMAT}")
+            else:
+                print(f"{amount:>2} {card.name}, {card.tier}")
         print('Ending draft tiers\n')
 
 
@@ -162,31 +170,18 @@ if __name__ == '__main__':
     response = requests.get(DATA_SOURCE)
     helper.parse_tiers(response.json())
 
-    # with open(PLAYER_LOG, 'rb') as f:
-    #     f.seek(0, 2)
-    #     print("Helper online, waiting for draft data.")
-    #     prev_line = ""
-    #     while True:
-    #         line = f.readline()
-    #         if line:
-    #             if line == prev_line:
-    #                 continue
-    #             else:
-    #                 prev_line = line
-    #             helper.get_draft_choices(line)
-    #             if SHOW_PICKS:
-    #                 helper.get_pick(line)
-    #         sleep(0.1)
-
-    TEST_LOG = r'c:\users\sqfky\desktop\premium_draft_iko.log'
-   #  TEST_LOG = r'c:\users\sqfky\desktop\quick_draft_afr.log'
-    with open(TEST_LOG, 'rb') as f:
+    with open(PLAYER_LOG, 'rb') as f:
+        f.seek(0, 2)
+        print("Helper online, waiting for draft data.")
         prev_line = ""
-        for line in f:
-            if line == prev_line:
-                continue
-            else:
-                prev_line = line
-            helper.get_draft_choices(line)
-            if SHOW_PICKS:
-                helper.get_pick(line)
+        while True:
+            line = f.readline()
+            if line:
+                if line == prev_line:
+                    continue
+                else:
+                    prev_line = line
+                helper.get_draft_choices(line)
+                if SHOW_PICKS:
+                    helper.get_pick(line)
+            sleep(0.1)

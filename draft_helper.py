@@ -140,6 +140,8 @@ class DraftHelper:
             print('Actually hit the Non-draft event? clause. Weird.')
             return
         card_pool = Counter(card_ids)
+        if not card_pool:
+            return
         card_pool = {self.tiers[key]: value for key, value in card_pool.items()}
         build_order = sorted(card_pool.items(), key=lambda x: x[0][3], reverse=True)
         print('\nStarting draft tiers:')
@@ -154,11 +156,16 @@ if __name__ == '__main__':
     response = requests.get(DATA_SOURCE)
     helper.parse_tiers(response.json())
 
-    with open(PLAYER_LOG, 'rb') as f:
-        f.seek(0, 2)
-        print("Helper online, waiting for draft data.")
-        while True:
-            line = f.readline()
-            if line:
-                helper.get_draft_choices(line)
-            sleep(0.1)
+    # with open(PLAYER_LOG, 'rb') as f:
+    #     f.seek(0, 2)
+    #     print("Helper online, waiting for draft data.")
+    #     while True:
+    #         line = f.readline()
+    #         if line:
+    #             helper.get_draft_choices(line)
+    #         sleep(0.1)
+
+    TEST_LOG = r'c:\users\sqfky\desktop\quick_draft_afr.log'
+    with open(TEST_LOG, 'rb') as f:
+        for line in f:
+            helper.get_draft_choices(line)

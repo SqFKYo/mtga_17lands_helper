@@ -45,6 +45,7 @@ DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/1d901171375f4cff9834c751
 # IKO ChordOCalls
 # DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/db593297907e41af93eedd994e26da28'
 PLAYER_LOG = r'C:\Users\sqfky\AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log'
+SHOW_PICKS = True
 VALUE_MAP = {
     'A+': 10,
     'A': 10,
@@ -81,15 +82,6 @@ class DraftHelper:
             jsonified = json.loads(tail)
             card_ids = jsonified["payload"]["DraftPack"]
             cards = [self.tiers[int(card_id)] for card_id in card_ids]
-        # elif b"Draft.MakePick" in line and b"payload" in line:
-        #     _, tail = line.split(b'Draft.MakePick')
-        #     jsonified = json.loads(tail)
-        #     card_ids = jsonified["payload"]["DraftPack"]
-        #     try:
-        #         cards = [self.tiers[int(card_id)] for card_id in card_ids]
-        #     except TypeError:
-        #         # QuickDraft finished
-        #         return
         elif b"DraftStatus" in line and b"PickNext" in line:
             try:
                 line = line.replace(b'\\', b"")
@@ -116,6 +108,14 @@ class DraftHelper:
                 print(f"{COLOR_MAP[card.color]}{card.name}, {card.tier}, {card.rarity}{END_FORMAT}")
             except KeyError:
                 print(f"{card.name}, {card.tier}, {card.rarity}")
+
+    def get_pick(self, line):
+        if b'BotDraft_DraftPick' in line and b'CardId' in line:
+            card_id = int(line.split(b'CardId')[1].split(b',')[0].split(b'\"')[2].replace(b"\\", b""))
+            card = self.tiers[card_id]
+            print(f"You picked: {COLOR_MAP[card.color]}{card.name}, {card.tier}, {card.rarity}{END_FORMAT}")
+        else:
+            return
 
     def parse_tiers(self, to_parse):
         """Parses raw json data into dict where card_id pulls the other data"""
@@ -156,16 +156,20 @@ if __name__ == '__main__':
     response = requests.get(DATA_SOURCE)
     helper.parse_tiers(response.json())
 
-    # with open(PLAYER_LOG, 'rb') as f:
-    #     f.seek(0, 2)
-    #     print("Helper online, waiting for draft data.")
-    #     while True:
-    #         line = f.readline()
-    #         if line:
-    #             helper.get_draft_choices(line)
-    #         sleep(0.1)
+    with open(PLAYER_LOG, 'rb') as f:
+        f.seek(0, 2)
+        print("Helper online, waiting for draft data.")
+        while True:
+            line = f.readline()
+            if line:
+                helper.get_draft_choices(line)
+                if SHOW_PICKS:
+                    helper.get_pick(line)
+            sleep(0.1)
 
-    TEST_LOG = r'c:\users\sqfky\desktop\quick_draft_afr.log'
-    with open(TEST_LOG, 'rb') as f:
-        for line in f:
-            helper.get_draft_choices(line)
+    # TEST_LOG = r'c:\users\sqfky\desktop\quick_draft_afr.log'
+    # with open(TEST_LOG, 'rb') as f:
+    #     for line in f:
+    #         helper.get_draft_choices(line)
+    #         if SHOW_PICKS:
+    #             helper.get_pick(line)

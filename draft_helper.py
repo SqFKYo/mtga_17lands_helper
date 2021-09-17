@@ -43,7 +43,9 @@ else:
 # KHM ChordOCalls
 # DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/69638dc98022443a9716300958e5fe9f'
 # IKO ChordOCalls
-DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/db593297907e41af93eedd994e26da28'
+# DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/db593297907e41af93eedd994e26da28'
+# MID ChordOCalls
+DATA_SOURCE = r'https://www.17lands.com/card_tiers/data/ef928c7c17bb4f57b09a75be5daf7df9'
 PLAYER_LOG = r'C:\Users\sqfky\AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log'
 SHOW_PICKS = True
 VALUE_MAP = {
@@ -140,8 +142,8 @@ class DraftHelper:
             # Already in Courses structure
             pass
         try:
-            # QuickDraft
-            card_ids = jsonfied[2]['CardPool']
+            # Sealed, might work for QuickDraft?
+            card_ids = jsonfied[-1]['CardPool']
         except KeyError:
             # PremiumDraft
             card_ids = jsonfied['CardPool']
